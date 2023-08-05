@@ -4,6 +4,7 @@
   "Punchline": "Infinite Blue Mage spell loadouts.",
   "Description": "Allows you to save, load, and share infinite Blue Mage spell loadouts.",
   "InternalName": "BetterInBlue",
+  "IconUrl": "https://raw.githubusercontent.com/NotNite/BetterInBlue/main/icon.png",
   "ApplicableVersion": "any",
   "Tags": [
     "blue",
