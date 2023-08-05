@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Utility;
 using ImGuiNET;
-using ImGuiScene;
 
 namespace BetterInBlue.Windows;
 
@@ -35,7 +32,6 @@ public class MainWindow : Window, IDisposable {
         var sidebar = cra with {X = cra.X * 0.25f};
         var editor = cra with {X = cra.X * 0.75f};
 
-
         this.DrawSidebar(sidebar);
         ImGui.SameLine();
         this.DrawEditor(editor);
@@ -51,8 +47,8 @@ public class MainWindow : Window, IDisposable {
     private void DrawSidebar(Vector2 size) {
         if (ImGui.BeginChild("Sidebar", size, true)) {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Plus)) {
-                this.plugin.Configuration.Loadouts.Add(new Loadout());
-                this.plugin.Configuration.Save();
+                Plugin.Configuration.Loadouts.Add(new Loadout());
+                Plugin.Configuration.Save();
             }
 
             if (ImGui.IsItemHovered()) ImGui.SetTooltip("Create a new loadout.");
@@ -61,8 +57,8 @@ public class MainWindow : Window, IDisposable {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Clipboard)) {
                 var maybeLoadout = Loadout.FromPreset(ImGui.GetClipboardText());
                 if (maybeLoadout != null) {
-                    this.plugin.Configuration.Loadouts.Add(maybeLoadout);
-                    this.plugin.Configuration.Save();
+                    Plugin.Configuration.Loadouts.Add(maybeLoadout);
+                    Plugin.Configuration.Save();
                 } else {
                     Services.PluginInterface.UiBuilder.AddNotification(
                         "Failed to load preset from clipboard.",
@@ -73,9 +69,16 @@ public class MainWindow : Window, IDisposable {
             }
 
             if (ImGui.IsItemHovered()) ImGui.SetTooltip("Load a preset from the clipboard.");
+            ImGui.SameLine();
+
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.Cog)) {
+                this.plugin.OpenConfigUi();
+            }
+
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Open the config window.");
             ImGui.Separator();
 
-            foreach (var loadout in this.plugin.Configuration.Loadouts) {
+            foreach (var loadout in Plugin.Configuration.Loadouts) {
                 var label = loadout.Name + "##" + loadout.GetHashCode();
                 if (ImGui.Selectable(label, loadout == this.selectedLoadout)) {
                     this.selectedLoadout = loadout;
@@ -120,8 +123,8 @@ public class MainWindow : Window, IDisposable {
                     "Delete this loadout - this can't be undone. Hold Ctrl to enable the delete button.",
                     !canDelete
                 )) {
-                this.plugin.Configuration.Loadouts.Remove(this.selectedLoadout);
-                this.plugin.Configuration.Save();
+                Plugin.Configuration.Loadouts.Remove(this.selectedLoadout);
+                Plugin.Configuration.Save();
 
                 this.selectedLoadout = null;
                 ImGui.EndChild();
@@ -145,7 +148,7 @@ public class MainWindow : Window, IDisposable {
             var name = this.selectedLoadout!.Name;
             if (ImGui.InputText("Name", ref name, 256)) {
                 this.selectedLoadout.Name = name;
-                this.plugin.Configuration.Save();
+                Plugin.Configuration.Save();
             }
 
             ImGui.Separator();
@@ -181,7 +184,7 @@ public class MainWindow : Window, IDisposable {
 
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right)) {
             this.selectedLoadout!.Actions[index] = 0;
-            this.plugin.Configuration.Save();
+            Plugin.Configuration.Save();
         }
     }
 
@@ -216,7 +219,7 @@ public class MainWindow : Window, IDisposable {
 
                     if (ImGui.Selectable(listName, false, flags)) {
                         this.selectedLoadout!.Actions[this.editing] = listAction.RowId;
-                        this.plugin.Configuration.Save();
+                        Plugin.Configuration.Save();
                         ImGui.CloseCurrentPopup();
                     }
 

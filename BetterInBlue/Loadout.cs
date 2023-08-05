@@ -2,8 +2,10 @@
 using System.Linq;
 using System.Text.Json;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Misc;
 
 namespace BetterInBlue;
 
@@ -75,7 +77,45 @@ public class Loadout {
         }
 
         fixed (uint* ptr = arr) {
-            return actionManager->SetBlueMageActions(ptr);
+            var ret = actionManager->SetBlueMageActions(ptr);
+            if (ret == false) return false;
+        }
+
+        if (Plugin.Configuration.ApplyToHotbars) {
+            this.ApplyToHotbar(
+                Plugin.Configuration.HotbarOne,
+                this.Actions[..12]
+            );
+
+            this.ApplyToHotbar(
+                Plugin.Configuration.HotbarTwo,
+                this.Actions[12..]
+            );
+        }
+
+        return true;
+    }
+
+    private unsafe void ApplyToHotbar(int id, uint[] aozActions) {
+        var hotbarModule = RaptureHotbarModule.Instance();
+        var hotbar = hotbarModule->HotBar[id - 1]; // starts at zero!
+
+        for (var i = 0; i < 12; i++) {
+            var aozAction = aozActions[i];
+            var normalAction = Plugin.AozToNormal(aozAction);
+
+            if (normalAction == 0) {
+                // DO NOT SET ACTION 0 YOU WILL GET CURE'D
+                hotbar->Slot[i]->Set(
+                    HotbarSlotType.Empty,
+                    0
+                );
+            } else {
+                hotbar->Slot[i]->Set(
+                    HotbarSlotType.Action,
+                    normalAction
+                );
+            }
         }
     }
 }

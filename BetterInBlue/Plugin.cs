@@ -19,8 +19,9 @@ public sealed class Plugin : IDalamudPlugin {
     private const string CommandName = "/pblue";
 
     public WindowSystem WindowSystem = new("BetterInBlue");
+    public static Configuration Configuration;
     public MainWindow MainWindow;
-    public Configuration Configuration;
+    public ConfigWindow ConfigWindow;
 
     public static ExcelSheet<Action> Action = null!;
     public static ExcelSheet<AozAction> AozAction = null!;
@@ -30,17 +31,19 @@ public sealed class Plugin : IDalamudPlugin {
     public Plugin(DalamudPluginInterface pluginInterface) {
         pluginInterface.Create<Services>();
 
-        this.Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
+        Configuration = Services.PluginInterface.GetPluginConfig() as Configuration ?? new Configuration();
         this.MainWindow = new MainWindow(this);
+        this.ConfigWindow = new ConfigWindow(this);
 
         WindowSystem.AddWindow(MainWindow);
+        WindowSystem.AddWindow(ConfigWindow);
 
         Services.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand) {
             HelpMessage = "Opens the main menu."
         });
 
         Services.PluginInterface.UiBuilder.Draw += this.DrawUi;
-        Services.PluginInterface.UiBuilder.OpenConfigUi += this.DrawConfigUi;
+        Services.PluginInterface.UiBuilder.OpenConfigUi += this.OpenConfigUi;
 
         Action = Services.DataManager.GetExcelSheet<Action>()!;
         AozAction = Services.DataManager.GetExcelSheet<AozAction>()!;
@@ -67,18 +70,28 @@ public sealed class Plugin : IDalamudPlugin {
     }
 
     private void OnCommand(string command, string args) {
-        MainWindow.IsOpen = true;
+        switch (args) {
+            case "config":
+            case "settings":
+                this.OpenConfigUi();
+                break;
+
+            default:
+                this.MainWindow.IsOpen = true;
+                break;
+        }
     }
 
     private void DrawUi() {
         this.WindowSystem.Draw();
     }
 
-    public void DrawConfigUi() {
-        this.MainWindow.IsOpen = true;
+    public void OpenConfigUi() {
+        this.ConfigWindow.IsOpen = true;
     }
 
     public static uint AozToNormal(uint id) {
+        if (id == 0) return 0;
         return AozAction.GetRow(id)!.Action.Row;
     }
 
