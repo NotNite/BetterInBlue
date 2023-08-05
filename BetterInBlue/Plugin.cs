@@ -63,8 +63,11 @@ public sealed class Plugin : IDalamudPlugin {
 
     public void Dispose() {
         this.WindowSystem.RemoveAllWindows();
-        MainWindow.Dispose();
+        this.MainWindow.Dispose();
+        this.ConfigWindow.Dispose();
+
         Services.CommandManager.RemoveHandler(CommandName);
+
         foreach (var icon in this.Icons.Values) icon.Dispose();
         this.Icons.Clear();
     }
