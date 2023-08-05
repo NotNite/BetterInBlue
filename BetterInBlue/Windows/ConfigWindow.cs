@@ -23,6 +23,13 @@ public class ConfigWindow : Window, IDisposable {
             Plugin.Configuration.Save();
         }
 
+        if (ImGui.IsItemHovered()) {
+            ImGui.SetTooltip(
+                "If checked, applying a loadout will write each action to your hotbars.\n"
+                + "Hotbar contents are not saved to your character config until an action is moved."
+            );
+        }
+
         if (!applyToHotbars) ImGui.BeginDisabled();
         this.HotbarSelector(true);
         this.HotbarSelector(false);

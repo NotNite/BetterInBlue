@@ -96,13 +96,13 @@ public class MainWindow : Window, IDisposable {
             var canApply = this.selectedLoadout.CanApply();
             if (Plugin.DisabledButtonWithTooltip(
                     FontAwesomeIcon.Play,
+                    !canApply,
+                    "Apply the current loadout.",
                     "Some conditions are not met to apply this loadout. You must meet all of the following conditions:\n"
                     + "- You must be a Blue Mage.\n"
                     + "- You must not be in combat.\n"
-                    + "- You must have every action unlocked.\n"
-                    + "- Your loadout must not be invalid (e.g. two of the same action or invalid action IDs).",
-                    !canApply,
-                    onlyShowWhenDisabled: true
+                    + "- You must have every action in the loadout unlocked.\n"
+                    + "- Your loadout must not be invalid (e.g. two of the same action or invalid action IDs)."
                 )) {
                 var worked = this.selectedLoadout.Apply();
                 if (!worked) {
@@ -120,8 +120,9 @@ public class MainWindow : Window, IDisposable {
             var canDelete = ImGui.GetIO().KeyCtrl;
             if (Plugin.DisabledButtonWithTooltip(
                     FontAwesomeIcon.Trash,
-                    "Delete this loadout - this can't be undone. Hold Ctrl to enable the delete button.",
-                    !canDelete
+                    !canDelete,
+                    "",
+                    "Delete this loadout - this can't be undone. Hold Ctrl to enable the delete button."
                 )) {
                 Plugin.Configuration.Loadouts.Remove(this.selectedLoadout);
                 Plugin.Configuration.Save();
@@ -174,6 +175,11 @@ public class MainWindow : Window, IDisposable {
         var icon = this.plugin.Icons[current];
 
         ImGui.Image(icon.ImGuiHandle, new Vector2(48, 48));
+        if (ImGui.IsItemHovered() && current != 0) {
+            var action = Plugin.AozToNormal(current);
+            var name = Plugin.Action.GetRow(action)!.Name.ToDalamudString().TextValue;
+            ImGui.SetTooltip(name);
+        }
 
         if (ImGui.IsItemClicked(ImGuiMouseButton.Left)) {
             this.editing = index;

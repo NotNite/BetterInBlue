@@ -108,14 +108,17 @@ public sealed class Plugin : IDalamudPlugin {
 
     // https://github.com/Ottermandias/OtterGui/blob/03b6b17fee66488fff7f598e444fa99454098767/Util.cs#L263
     public static bool DisabledButtonWithTooltip(
-        FontAwesomeIcon icon, string text, bool disabled, bool onlyShowWhenDisabled = false
+        FontAwesomeIcon icon,
+        bool disabled,
+        string enabledText = "",
+        string disabledText = ""
     ) {
         if (disabled) ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.5f);
         var ret = ImGuiComponents.IconButton(icon);
         if (disabled) ImGui.PopStyleVar();
 
-        var shouldShowTooltip = onlyShowWhenDisabled ? disabled : true;
-        if (shouldShowTooltip && ImGui.IsItemHovered()) ImGui.SetTooltip(text);
+        var str = disabled ? disabledText : enabledText;
+        if (!string.IsNullOrEmpty(str) && ImGui.IsItemHovered()) ImGui.SetTooltip(str);
 
         return ret && !disabled;
     }
