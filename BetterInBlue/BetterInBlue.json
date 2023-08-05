@@ -1,0 +1,15 @@
+{
+  "Author": "NotNite",
+  "Name": "Better in Blue",
+  "Punchline": "Infinite Blue Mage spell loadouts.",
+  "Description": "Allows you to save, load, and share infinite Blue Mage spell loadouts.",
+  "InternalName": "BetterInBlue",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "blue",
+    "mage",
+    "blu",
+    "spell",
+    "action"
+  ]
+}
