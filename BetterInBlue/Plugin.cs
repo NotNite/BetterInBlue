@@ -5,9 +5,9 @@ using Dalamud.Plugin;
 using BetterInBlue.Windows;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using ImGuiNET;
-using ImGuiScene;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Action = Lumina.Excel.GeneratedSheets.Action;
@@ -19,14 +19,13 @@ public sealed class Plugin : IDalamudPlugin {
     private const string CommandName = "/pblue";
 
     public WindowSystem WindowSystem = new("BetterInBlue");
-    public static Configuration Configuration;
+    public static Configuration Configuration = null!;
     public MainWindow MainWindow;
     public ConfigWindow ConfigWindow;
 
     public static ExcelSheet<Action> Action = null!;
     public static ExcelSheet<AozAction> AozAction = null!;
     public static ExcelSheet<AozActionTransient> AozActionTransient = null!;
-    public Dictionary<uint, TextureWrap> Icons = new();
 
     public Plugin(DalamudPluginInterface pluginInterface) {
         pluginInterface.Create<Services>();
@@ -48,17 +47,17 @@ public sealed class Plugin : IDalamudPlugin {
         Action = Services.DataManager.GetExcelSheet<Action>()!;
         AozAction = Services.DataManager.GetExcelSheet<AozAction>()!;
         AozActionTransient = Services.DataManager.GetExcelSheet<AozActionTransient>()!;
+    }
 
-        var emptySlot = "ui/uld/DragTargetA_hr1.tex";
-        var emptySlotIcon = Services.DataManager.GetImGuiTexture(emptySlot)!;
-        this.Icons.Add(0, emptySlotIcon);
-
-        foreach (var aozAction in AozAction) {
-            if (aozAction.RowId == 0) continue;
-            var transient = AozActionTransient.GetRow(aozAction.RowId)!;
-            var icon = Services.DataManager.GetImGuiTextureIcon(transient.Icon, true)!;
-            this.Icons.Add(aozAction.RowId, icon);
+    public IDalamudTextureWrap GetIcon(uint id) {
+        if (id == 0) {
+            return Services.TextureProvider.GetTextureFromGame("ui/uld/DragTargetA_hr1.tex")!;
         }
+
+        var row = AozAction.GetRow(id)!;
+        var transient = AozActionTransient.GetRow(row.RowId)!;
+        var icon = Services.TextureProvider.GetIcon(transient.Icon)!;
+        return icon;
     }
 
     public void Dispose() {
@@ -67,9 +66,6 @@ public sealed class Plugin : IDalamudPlugin {
         this.ConfigWindow.Dispose();
 
         Services.CommandManager.RemoveHandler(CommandName);
-
-        foreach (var icon in this.Icons.Values) icon.Dispose();
-        this.Icons.Clear();
     }
 
     private void OnCommand(string command, string args) {

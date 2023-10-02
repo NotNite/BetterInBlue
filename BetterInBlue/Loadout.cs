@@ -98,7 +98,7 @@ public class Loadout {
 
     private unsafe void ApplyToHotbar(int id, uint[] aozActions) {
         var hotbarModule = RaptureHotbarModule.Instance();
-        var hotbar = hotbarModule->HotBar[id - 1]; // starts at zero!
+        var hotbar = hotbarModule->HotBarsSpan[id - 1];
 
         for (var i = 0; i < 12; i++) {
             var aozAction = aozActions[i];
@@ -106,12 +106,12 @@ public class Loadout {
 
             if (normalAction == 0) {
                 // DO NOT SET ACTION 0 YOU WILL GET CURE'D
-                hotbar->Slot[i]->Set(
+                hotbar.SlotsSpan[i].Set(
                     HotbarSlotType.Empty,
                     0
                 );
             } else {
-                hotbar->Slot[i]->Set(
+                hotbar.SlotsSpan[i].Set(
                     HotbarSlotType.Action,
                     normalAction
                 );

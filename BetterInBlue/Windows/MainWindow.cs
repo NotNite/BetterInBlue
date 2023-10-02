@@ -172,7 +172,7 @@ public class MainWindow : Window, IDisposable {
 
     private void DrawSquare(int index) {
         var current = this.selectedLoadout!.Actions[index];
-        var icon = this.plugin.Icons[current];
+        var icon = this.plugin.GetIcon(current);
 
         ImGui.Image(icon.ImGuiHandle, new Vector2(48, 48));
         if (ImGui.IsItemHovered() && current != 0) {
@@ -203,7 +203,7 @@ public class MainWindow : Window, IDisposable {
                     if (listAction.RowId == 0) continue;
 
                     var listName = listAction.Action.Value!.Name.ToDalamudString().TextValue;
-                    var listIcon = this.plugin.Icons[listAction.RowId];
+                    var listIcon = this.plugin.GetIcon(listAction.RowId);
 
                     var meetsSearchFilter = string.IsNullOrEmpty(this.searchFilter)
                                             || listName.ToLower().Contains(this.searchFilter.ToLower());
