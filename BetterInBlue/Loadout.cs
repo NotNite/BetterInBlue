@@ -104,7 +104,6 @@ public class Loadout {
             var normalAction = Plugin.AozToNormal(aozAction);
             var slot = hotbarModule->GetSlotById((uint) (id - 1), (uint) i);
 
-            PluginLog.Log("Setting action {Action} to slot {Slot}", normalAction, i);
             if (normalAction == 0) {
                 // DO NOT SET ACTION 0 YOU WILL GET CURE'D
                 slot->Set(
