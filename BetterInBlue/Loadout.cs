@@ -98,20 +98,21 @@ public class Loadout {
 
     private unsafe void ApplyToHotbar(int id, uint[] aozActions) {
         var hotbarModule = RaptureHotbarModule.Instance();
-        var hotbar = hotbarModule->HotBarsSpan[id - 1];
-
+        
         for (var i = 0; i < 12; i++) {
             var aozAction = aozActions[i];
             var normalAction = Plugin.AozToNormal(aozAction);
+            var slot = hotbarModule->GetSlotById((uint) (id - 1), (uint) i);
 
+            PluginLog.Log("Setting action {Action} to slot {Slot}", normalAction, i);
             if (normalAction == 0) {
                 // DO NOT SET ACTION 0 YOU WILL GET CURE'D
-                hotbar.SlotsSpan[i].Set(
+                slot->Set(
                     HotbarSlotType.Empty,
                     0
                 );
             } else {
-                hotbar.SlotsSpan[i].Set(
+                slot->Set(
                     HotbarSlotType.Action,
                     normalAction
                 );
