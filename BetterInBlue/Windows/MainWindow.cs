@@ -1,10 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using ImGuiNET;
 
 namespace BetterInBlue.Windows;
@@ -46,7 +48,7 @@ public class MainWindow : Window, IDisposable {
         this.DrawContextMenu();
     }
 
-    private void DrawSidebar(Vector2 size) {
+    private unsafe void DrawSidebar(Vector2 size) {
         if (ImGui.BeginChild("Sidebar", size, true)) {
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Plus)) {
                 Plugin.Configuration.Loadouts.Add(new Loadout());
@@ -71,6 +73,18 @@ public class MainWindow : Window, IDisposable {
             }
 
             if (ImGui.IsItemHovered()) ImGui.SetTooltip("Load a preset from the clipboard.");
+            ImGui.SameLine();
+
+            if (ImGuiComponents.IconButton(FontAwesomeIcon.FileImport)) {
+                var loadout = new Loadout();
+                var activeActions = new List<uint>();
+                for (var i = 0; i < 24; i++)
+                    loadout.Actions.SetValue(Plugin.NormalToAoz(ActionManager.Instance()->GetActiveBlueMageActionInSlot(i)), i);
+                Plugin.Configuration.Loadouts.Add(loadout);
+                Plugin.Configuration.Save();
+            }
+
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip("Create preset from current spell loadout.");
             ImGui.SameLine();
 
             if (ImGuiComponents.IconButton(FontAwesomeIcon.Cog)) {
