@@ -97,7 +97,6 @@ public sealed class Plugin : IDalamudPlugin {
             if (loadout.Name.ToLower() == name)
                 loadout.Apply();
         }
-        
     }
 
     private void DrawUi() {
