@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
@@ -11,6 +11,7 @@ using ImGuiNET;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Action = Lumina.Excel.GeneratedSheets.Action;
+using System.Linq;
 
 namespace BetterInBlue;
 
@@ -37,7 +38,7 @@ public sealed class Plugin : IDalamudPlugin {
         WindowSystem.AddWindow(MainWindow);
         WindowSystem.AddWindow(ConfigWindow);
 
-        Services.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommand) {
+        Services.CommandManager.AddHandler(CommandName, new CommandInfo(OnCommandInternal) {
             HelpMessage = "Opens the main menu."
         });
 
@@ -68,17 +69,35 @@ public sealed class Plugin : IDalamudPlugin {
         Services.CommandManager.RemoveHandler(CommandName);
     }
 
-    private void OnCommand(string command, string args) {
-        switch (args) {
+    private void OnCommandInternal(string _, string args) {
+        args = args.ToLower();
+        OnCommand(args.Split(' ').ToList());
+    }
+
+    private void OnCommand(List<string> args) {
+        switch (args[0]) {
             case "config":
             case "settings":
                 this.OpenConfigUi();
+                break;
+            case "apply":
+            case "load":
+                ApplyLoadoutByName(args.Skip(1).ToList());
                 break;
 
             default:
                 this.MainWindow.IsOpen = true;
                 break;
         }
+    }
+
+    private static void ApplyLoadoutByName(List<string> args) {
+        var name = string.Join(" ", args).Trim();
+        foreach (var loadout in Configuration.Loadouts) {
+            if (loadout.Name.ToLower() == name)
+                loadout.Apply();
+        }
+        
     }
 
     private void DrawUi() {
