@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
@@ -16,6 +16,7 @@ public class MainWindow : Window, IDisposable {
     private int editing;
     private string searchFilter = string.Empty;
     private bool shouldOpen;
+    private static bool _keyboardFocus;
 
     public MainWindow(Plugin plugin) : base("Better in Blue") {
         this.plugin = plugin;
@@ -41,6 +42,7 @@ public class MainWindow : Window, IDisposable {
             this.shouldOpen = false;
         }
 
+        _keyboardFocus = true;
         this.DrawContextMenu();
     }
 
@@ -196,6 +198,11 @@ public class MainWindow : Window, IDisposable {
 
     private void DrawContextMenu() {
         if (ImGui.BeginPopup("ActionContextMenu")) {
+            if (_keyboardFocus) {
+                ImGui.SetKeyboardFocusHere();
+                _keyboardFocus = false;
+            }
+
             ImGui.InputText("##Search", ref this.searchFilter, 256);
 
             if (ImGui.BeginChild("ActionList", new Vector2(256, 256))) {
