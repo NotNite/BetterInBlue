@@ -93,16 +93,34 @@ public class Loadout {
             );
         }
 
+        if(Plugin.Configuration.ApplyToCrossHotbars){
+            this.ApplyToHotbar(
+                Plugin.Configuration.CrossHotbarOne + 10,
+                this.Actions[..16],
+                true
+            );
+
+            this.ApplyToHotbar(
+                Plugin.Configuration.CrossHotbarTwo + 10,
+                this.Actions[16..],
+                true
+            );
+        }
+
         return true;
     }
 
-    private unsafe void ApplyToHotbar(int id, uint[] aozActions) {
+    private unsafe void ApplyToHotbar(int id, uint[] aozActions, bool crossbar = false) {
         var hotbarModule = RaptureHotbarModule.Instance();
+
+        var maxSlots = !crossbar ? 12 : 16;
         
-        for (var i = 0; i < 12; i++) {
+        for (var i = 0; i < maxSlots; i++) {
             var aozAction = aozActions[i];
             var normalAction = Plugin.AozToNormal(aozAction);
-            var slot = hotbarModule->GetSlotById((uint) (id - 1), (uint) i);
+            var slot = !crossbar 
+                            ? hotbarModule->GetSlotById((uint) (id - 1), (uint) i)
+                            : hotbarModule->GetSlotById((uint) (id - 1), (uint) (15 - i));
 
             if (normalAction == 0) {
                 // DO NOT SET ACTION 0 YOU WILL GET CURE'D

@@ -12,8 +12,11 @@ public class Configuration : IPluginConfiguration {
     public List<Loadout> Loadouts { get; set; } = new();
 
     public bool ApplyToHotbars { get; set; } = false;
+    public bool ApplyToCrossHotbars { get; set; } = false;
     public int HotbarOne { get; set; } = 1;
     public int HotbarTwo { get; set; } = 2;
+    public int CrossHotbarOne { get; set; } = 1;
+    public int CrossHotbarTwo { get; set; } = 2;
 
     public void Save() {
         Services.PluginInterface.SavePluginConfig(this);
