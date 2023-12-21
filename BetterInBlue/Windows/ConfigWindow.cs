@@ -23,21 +23,23 @@ public class ConfigWindow : Window, IDisposable {
             Plugin.Configuration.Save();
         }
 
+        if (ImGui.IsItemHovered()) {
+            ImGui.SetTooltip(
+                "If checked, applying a loadout will write each action to your hotbars.\n"
+                + "Hotbar contents are not saved to your character config until an action is moved."
+            );
+        }
+
         if (!applyToHotbars) ImGui.BeginDisabled();
         this.HotbarSelector(true);
         this.HotbarSelector(false);
         if (!applyToHotbars) ImGui.EndDisabled();
 
         var applyToCrossHotbars = Plugin.Configuration.ApplyToCrossHotbars;
-        if (ImGui.Checkbox("Apply to crosshotbars", ref applyToCrossHotbars)) {
+        if (ImGui.Checkbox("Apply to cross hotbars", ref applyToCrossHotbars)) {
             Plugin.Configuration.ApplyToCrossHotbars = applyToCrossHotbars;
             Plugin.Configuration.Save();
         }
-
-        if (!applyToCrossHotbars) ImGui.BeginDisabled();
-        this.CrossHotbarSelector(true);
-        this.CrossHotbarSelector(false);
-        if (!applyToCrossHotbars) ImGui.EndDisabled();
 
         if (ImGui.IsItemHovered()) {
             ImGui.SetTooltip(
@@ -45,6 +47,11 @@ public class ConfigWindow : Window, IDisposable {
                 + "Hotbar contents are not saved to your character config until an action is moved."
             );
         }
+
+        if (!applyToCrossHotbars) ImGui.BeginDisabled();
+        this.CrossHotbarSelector(true);
+        this.CrossHotbarSelector(false);
+        if (!applyToCrossHotbars) ImGui.EndDisabled();
     }
 
     private void HotbarSelector(bool firstHotbar) {
@@ -71,7 +78,7 @@ public class ConfigWindow : Window, IDisposable {
                           ? Plugin.Configuration.CrossHotbarOne
                           : Plugin.Configuration.CrossHotbarTwo;
 
-        if (ImGui.InputInt(firstHotbar ? "CrossHotbar 1" : "CrossHotbar 2", ref current)) {
+        if (ImGui.InputInt(firstHotbar ? "Cross hotbar 1" : "Cross hotbar 2", ref current)) {
             if (current > 8) current = 8;
             if (current < 1) current = 1;
             if (firstHotbar) {

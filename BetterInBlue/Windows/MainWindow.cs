@@ -5,6 +5,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Internal.Notifications;
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using ImGuiNET;
@@ -18,7 +19,6 @@ public class MainWindow : Window, IDisposable {
     private int editing;
     private string searchFilter = string.Empty;
     private bool shouldOpen;
-    private static bool KeyboardFocus;
 
     public MainWindow(Plugin plugin) : base("Better in Blue") {
         this.plugin = plugin;
@@ -44,7 +44,6 @@ public class MainWindow : Window, IDisposable {
             this.shouldOpen = false;
         }
 
-        KeyboardFocus = true;
         this.DrawContextMenu();
     }
 
@@ -77,9 +76,9 @@ public class MainWindow : Window, IDisposable {
 
             if (ImGuiComponents.IconButton(FontAwesomeIcon.FileImport)) {
                 var loadout = new Loadout();
-                var activeActions = new List<uint>();
                 for (var i = 0; i < 24; i++)
-                    loadout.Actions.SetValue(Plugin.NormalToAoz(ActionManager.Instance()->GetActiveBlueMageActionInSlot(i)), i);
+                    loadout.Actions.SetValue(
+                        Plugin.NormalToAoz(ActionManager.Instance()->GetActiveBlueMageActionInSlot(i)), i);
                 Plugin.Configuration.Loadouts.Add(loadout);
                 Plugin.Configuration.Save();
             }
@@ -212,11 +211,6 @@ public class MainWindow : Window, IDisposable {
 
     private void DrawContextMenu() {
         if (ImGui.BeginPopup("ActionContextMenu")) {
-            if (KeyboardFocus) {
-                ImGui.SetKeyboardFocusHere();
-                KeyboardFocus = false;
-            }
-
             ImGui.InputText("##Search", ref this.searchFilter, 256);
 
             if (ImGui.BeginChild("ActionList", new Vector2(256, 256))) {
@@ -228,7 +222,6 @@ public class MainWindow : Window, IDisposable {
 
                     var meetsSearchFilter = string.IsNullOrEmpty(this.searchFilter)
                                             || listName.ToLower().Contains(this.searchFilter.ToLower());
-
                     if (!meetsSearchFilter) continue;
 
                     var rowHeight = ImGui.GetTextLineHeightWithSpacing();
